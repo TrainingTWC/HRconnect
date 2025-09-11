@@ -36,6 +36,200 @@
 
   <script type="text/babel">
     const { useState } = React;
+    
+    // Area Manager data
+    const AREA_MANAGERS = [
+      { name: 'Abhishek Vilas Satardekar', id: 'h3386' },
+      { name: 'Ajay  Hatimuria', id: 'h546' },
+      { name: 'Ajay Omnath Tiwari', id: 'h1815' },
+      { name: 'Amar  Debnath', id: 'h535' },
+      { name: 'Anil  Rawat', id: 'h2262' },
+      { name: 'Gorijala  Umakanth', id: 'h3270' },
+      { name: 'Himanshu  Chaudhary', id: 'h955' },
+      { name: 'Jagruti Narendra Bhanushali', id: 'h2155' },
+      { name: 'Karthick  G', id: 'h3362' },
+      { name: 'Kiran Kumar KN', id: 'h2601' },
+      { name: 'Shailesh Ramhari Sahu', id: 'h2908' },
+      { name: 'Suresh  A', id: 'h1355' },
+      { name: 'Vishal Vishwanath Khatakalle', id: 'h3184' },
+      { name: 'Vishu  Kumar', id: 'h1766' },
+      { name: 'Vruchika Prathamesh Nanavare', id: 'h1575' },
+      { name: 'Nandish', id: 'H833' }
+    ].sort((a, b) => a.name.localeCompare(b.name));
+
+    // Store data
+    const STORES = [
+      { name: 'Koramangala 1', id: 'S001' },
+      { name: 'CMH Indiranagar', id: 'S002' },
+      { name: 'HSR Layout 1', id: 'S003' },
+      { name: 'Sadashivnagar', id: 'S004' },
+      { name: 'Whitefield', id: 'S005' },
+      { name: 'Airport Road', id: 'S006' },
+      { name: 'UB City', id: 'S007' },
+      { name: 'Bellandur', id: 'S008' },
+      { name: '12th Main Indiranagar', id: 'S009' },
+      { name: 'Cunningham Road', id: 'S011' },
+      { name: 'Malleshwaram', id: 'S012' },
+      { name: 'Church Street', id: 'S014' },
+      { name: 'JP Nagar', id: 'S015' },
+      { name: 'Jayanagar', id: 'S016' },
+      { name: 'Sarjapur', id: 'S017' },
+      { name: 'HSR Layout 2', id: 'S018' },
+      { name: 'Phoenix', id: 'S019' },
+      { name: 'BEL Road', id: 'S020' },
+      { name: 'Coonoor', id: 'S021' },
+      { name: 'ECO World', id: 'S022' },
+      { name: 'Kammanahalli', id: 'S023' },
+      { name: 'Deer Park', id: 'S024' },
+      { name: 'Platina', id: 'S025' },
+      { name: 'GK 2', id: 'S026' },
+      { name: 'Defence Colony', id: 'S027' },
+      { name: 'Saket', id: 'S028' },
+      { name: 'Frazer Town', id: 'S030' },
+      { name: 'Lavelle Road', id: 'S031' },
+      { name: 'Brookefield', id: 'S032' },
+      { name: 'Banashankari', id: 'S033' },
+      { name: 'Karthik Nagar', id: 'S034' },
+      { name: 'GK 1', id: 'S035' },
+      { name: 'Punjabi Bagh', id: 'S036' },
+      { name: 'Khan Market', id: 'S037' },
+      { name: 'Vatika Business Park', id: 'S038' },
+      { name: 'Sector 07', id: 'S039' },
+      { name: 'Ambience Mall, Vasant Kunj', id: 'S040' },
+      { name: 'Netaji Subhash Place', id: 'S041' },
+      { name: 'Sector 35', id: 'S042' },
+      { name: 'Kemps Corner', id: 'S043' },
+      { name: 'Lokhandwala', id: 'S044' },
+      { name: 'Mahim', id: 'S045' },
+      { name: 'R City, Ghatkopar', id: 'S047' },
+      { name: 'Kalyani Nagar', id: 'S048' },
+      { name: 'Connaught Place', id: 'S049' },
+      { name: 'Airport Outside', id: 'S050' },
+      { name: 'Sakra Hospital', id: 'S051' },
+      { name: 'Varthur', id: 'S053' },
+      { name: 'Kalkaji', id: 'S055' },
+      { name: 'Mall of India', id: 'S056' },
+      { name: 'Versova', id: 'S057' },
+      { name: 'Wanowrie', id: 'S058' },
+      { name: 'Koregaon Park', id: 'S059' },
+      { name: 'Kothrud', id: 'S060' },
+      { name: 'Juhu', id: 'S061' },
+      { name: 'Panchkula', id: 'S062' },
+      { name: 'BTM Layout 1', id: 'S063' },
+      { name: 'Manipal Hospital', id: 'S065' },
+      { name: 'Khajaguda', id: 'S066' },
+      { name: 'Kanakpura Road', id: 'S067' },
+      { name: 'Koramangala 2', id: 'S068' },
+      { name: 'BTM Layout 2', id: 'S069' },
+      { name: 'Sahakar Nagar', id: 'S070' },
+      { name: 'Kailash Colony', id: 'S072' },
+      { name: 'Golf Course', id: 'S073' },
+      { name: 'Phoenix Market City', id: 'S074' },
+      { name: 'Runwal', id: 'S075' },
+      { name: 'Borivali Emerald', id: 'S076' },
+      { name: 'Sea Castle', id: 'S077' },
+      { name: 'Cuff Parade', id: 'S078' },
+      { name: 'Balewadi High Street', id: 'S080' },
+      { name: 'Sainikpuri', id: 'S081' },
+      { name: 'Salarpuria Sattva', id: 'S082' },
+      { name: 'Kondapur', id: 'S083' },
+      { name: 'Banjarahills', id: 'S084' },
+      { name: 'Platina Gachibowli', id: 'S085' },
+      { name: 'Inorbit Mall', id: 'S086' },
+      { name: 'BKC Equinox', id: 'S087' },
+      { name: 'Kandivali Thakur Village', id: 'S088' },
+      { name: 'Viviana Mall', id: 'S089' },
+      { name: 'Goregaon Oberoi Mall', id: 'S090' },
+      { name: 'Nexus Whitefield', id: 'S091' },
+      { name: 'Manyata Tech Park', id: 'S092' },
+      { name: 'Falcon City', id: 'S094' },
+      { name: 'JP Nagar Brigade Millennium', id: 'S095' },
+      { name: 'Mahavir Nagar', id: 'S096' },
+      { name: 'Chembur', id: 'S097' },
+      { name: 'Sushant Lok', id: 'S099' },
+      { name: 'AIPL Business Club', id: 'S100' },
+      { name: 'Sector 63', id: 'S101' },
+      { name: 'Fortis', id: 'S102' },
+      { name: 'Thane, The Walk', id: 'S103' },
+      { name: 'Wakad', id: 'S104' },
+      { name: 'Platina, BKC', id: 'S105' },
+      { name: 'Andheri, Chakala', id: 'S106' },
+      { name: 'Vile Parle', id: 'S107' },
+      { name: 'Hyderabad Airport Inside', id: 'S108' },
+      { name: 'FC Road', id: 'S109' },
+      { name: 'Mall of Asia', id: 'S110' },
+      { name: 'CBD Belapur', id: 'S111' },
+      { name: 'Spectrum Mall', id: 'S112' },
+      { name: 'Hauz Khas', id: 'S113' },
+      { name: 'Gate 39 T1 Airport', id: 'S114' },
+      { name: 'Deloitte Bangalore', id: 'S115' },
+      { name: 'Crossword, Santacruz', id: 'S116' },
+      { name: 'Marol Andheri East', id: 'S117' },
+      { name: 'Inorbit Mall Vashi', id: 'S118' },
+      { name: 'Devaraj Urs Rd-Mysuru', id: 'S119' },
+      { name: 'Janakpuri', id: 'S120' },
+      { name: 'DLF Avenue Mall - Saket', id: 'S121' },
+      { name: 'Jubilee Walk Mohali', id: 'S122' },
+      { name: 'Phoenix Palladium Chennai', id: 'S123' },
+      { name: 'Vijayanagar', id: 'S125' },
+      { name: 'Pacific Mall - Tagore Garden', id: 'S126' },
+      { name: 'Seawoods Navi Mumbai', id: 'S127' },
+      { name: 'Bibwewadi', id: 'S128' },
+      { name: 'Basant Lok', id: 'S129' },
+      { name: 'Pimple Saudagar Hill Crest', id: 'S130' },
+      { name: 'Brigade Utopia', id: 'S131' },
+      { name: 'Ekta Tripolis Goregoan', id: 'S132' },
+      { name: 'Fiza by Nexus Mall', id: 'S133' },
+      { name: 'Nexus Westend Mall', id: 'S134' },
+      { name: 'Worli Athithi', id: 'S135' },
+      { name: 'Pimple Nilakh Water Square', id: 'S136' },
+      { name: 'Palm Beach Vashi', id: 'S137' },
+      { name: 'Damodar Villa Santacruz', id: 'S138' },
+      { name: 'Balmatta', id: 'S139' },
+      { name: 'Harlur Road', id: 'S140' },
+      { name: 'Paschim Vihar', id: 'S141' },
+      { name: 'Green Park', id: 'S142' },
+      { name: 'Kilpauk', id: 'S143' },
+      { name: 'Express Avenue Mall', id: 'S144' },
+      { name: 'Adyar', id: 'S145' },
+      { name: 'Rajajinagar', id: 'S146' },
+      { name: 'Pune Mumbai Expressway', id: 'S147' },
+      { name: 'Vensej Mall', id: 'S148' },
+      { name: 'HSR 5th Main', id: 'S149' },
+      { name: 'Airia Mall', id: 'S150' },
+      { name: 'Kalidasa Road Mysore', id: 'S152' },
+      { name: 'Lajpat Nagar', id: 'S153' },
+      { name: 'DME 63 LHS', id: 'S154' },
+      { name: 'DME 69 RHS', id: 'S155' },
+      { name: 'Akshay Nagar', id: 'S156' },
+      { name: 'Kathipara Urban Square', id: 'S157' },
+      { name: 'Prestige Tech Park Electra', id: 'S158' },
+      { name: 'The Sqaure - Raj Etternia Kudlu', id: 'S159' },
+      { name: 'Nexus Seawoods Grand Central Mall', id: 'S161' },
+      { name: 'Deloitte - Mumbai', id: 'S162' },
+      { name: 'Phoenix Market City - Mumbai', id: 'S163' },
+      { name: 'Nirvana Courtyard', id: 'S164' },
+      { name: 'Oberoi Sky City Mall', id: 'S165' },
+      { name: 'Central Market- Sector 120', id: 'S166' },
+      { name: 'Advant Noida', id: 'S167' },
+      { name: 'Himayat Nagar', id: 'S169' },
+      { name: 'Pokhran Road', id: 'S170' },
+      { name: 'Omaxe World Street', id: 'S171' },
+      { name: 'Rohini Sec 14', id: 'S173' },
+      { name: 'Vasant Kunj', id: 'S174' },
+      { name: 'Madeenaguda', id: 'S175' },
+      { name: 'Nariman Point', id: 'S177' },
+      { name: 'Besant Nagar', id: 'S178' },
+      { name: 'Deloitte Thane', id: 'S180' },
+      { name: 'Prestige TechnoStar', id: 'S184' },
+      { name: 'Capital Cyberscape', id: 'S176' },
+      { name: 'Sparsh Hospital- RR Nagar', id: 'S191' },
+      { name: 'EcoWorld 4AB', id: 'S190' },
+      { name: 'Panchpakhadi-Thane', id: 'S168' },
+      { name: 'Faridabad Sec 14', id: 'S172' },
+      { name: 'Bhutani City Centre Noida', id: 'S192' },
+      { name: 'NXT Whitefield', id: 'S189' }
+    ].sort((a, b) => a.name.localeCompare(b.name));
 
     const QUESTIONS = [
       { id: 'q1', title: 'Is there any work pressure in the café?', type: 'radio', choices: [
@@ -73,7 +267,7 @@
     ];
 
     // Remote logging endpoint (Apps Script URL provided by user)
-    const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycby2Q2O8ErAzt7W8WY41O0Kz-LH78FxSSzDAJ8h9w397q-Yb7r6oFCxgb_-RycBc_qnCeA/exec';
+    const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwDQs8yJ_e23aHk3Ep_hmaswO3bKDxZKIs6J3gqkOjkxhQD2Ux4JicBlFoCf5UUrCX73w/exec';
 
     function HRConnectForm(){
       // Get HR details from URL parameters
@@ -97,7 +291,7 @@
         try { 
           const stored = JSON.parse(localStorage.getItem('hr_meta') || '{}');
           return Object.assign(
-            {hrName:'',hrId:'',empName:'',empId:'',storeName:'',storeId:''}, 
+            {hrName:'',hrId:'',amName:'',amId:'',empName:'',empId:'',storeName:'',storeId:''}, 
             stored,
             // URL params override stored values
             {
@@ -190,22 +384,36 @@
             submissionTime: new Date().toLocaleString('en-GB',{hour12:false}),
             hrName: meta.hrName || '',
             hrId: meta.hrId || '',
+            amName: meta.amName || '',
+            amId: meta.amId || '',
             empName: meta.empName || '',
             empId: meta.empId || '',
             storeName: meta.storeName || '',
             storeID: meta.storeId || '',
             q1: resp['q1'] || '',
+            q1_remarks: resp['q1_remarks'] || '',
             q2: resp['q2'] || '',
+            q2_remarks: resp['q2_remarks'] || '',
             q3: resp['q3'] || '',
+            q3_remarks: resp['q3_remarks'] || '',
             q4: resp['q4'] || '',
+            q4_remarks: resp['q4_remarks'] || '',
             q5: resp['q5'] || '',
+            q5_remarks: resp['q5_remarks'] || '',
             q6: resp['q6'] || '',
+            q6_remarks: resp['q6_remarks'] || '',
             q7: resp['q7'] || '',
+            q7_remarks: resp['q7_remarks'] || '',
             q8: resp['q8'] || '',
+            q8_remarks: resp['q8_remarks'] || '',
             q9: resp['q9'] || '',
+            q9_remarks: resp['q9_remarks'] || '',
             q10: resp['q10'] || '',
+            q10_remarks: resp['q10_remarks'] || '',
             q11: resp['q11'] || '',
+            q11_remarks: resp['q11_remarks'] || '',
             q12: resp['q12'] || '',
+            q12_remarks: resp['q12_remarks'] || '',
             totalScore: score.total || '',
             maxScore: score.max || '',
             percent: score.percent || ''
@@ -251,6 +459,9 @@
         y += 6;
         doc.text(`HR Name: ${meta.hrName || '-'}`, 14, y);
         doc.text(`HR ID: ${meta.hrId || '-'}`, 110, y);
+        y += 6;
+        doc.text(`Area Manager: ${meta.amName || '-'}`, 14, y);
+        doc.text(`AM ID: ${meta.amId || '-'}`, 110, y);
         y += 6;
         doc.text(`Emp Name: ${meta.empName || '-'}`, 14, y);
         doc.text(`Emp ID: ${meta.empId || '-'}`, 110, y);
@@ -317,15 +528,19 @@
 
         y += barH + 12;
 
-        // Two-column Q/A table using autoTable with black text
-        const rows = QUESTIONS.map(q => [q.title, String(resp[q.id] || '-')]);
+        // Three-column Q/A/Remarks table using autoTable with black text
+        const rows = QUESTIONS.map(q => [q.title, String(resp[q.id] || '-'), String(resp[q.id + '_remarks'] || '-')]);
         doc.autoTable({
           startY: y,
-          head: [['Question', 'Answer']],
+          head: [['Question', 'Answer', 'Remarks']],
           body: rows,
           styles: { fontSize: 10, textColor: '#000000' },
           headStyles: { fillColor: [255,255,255], textColor: '#000000', fontStyle: 'bold' },
-          columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 60 } },
+          columnStyles: { 
+            0: { cellWidth: 80 }, 
+            1: { cellWidth: 40 },
+            2: { cellWidth: 60 }
+          },
           margin: { left: 14, right: 14 }
         });
 
@@ -351,11 +566,32 @@
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">HR Name</span>
-                  <input className="p-2 border rounded" value={meta.hrName} onChange={e=>handleMetaChange('hrName', e.target.value)} />
+                  <input className="p-2 border rounded bg-gray-50" value={meta.hrName} onChange={e=>handleMetaChange('hrName', e.target.value)} readOnly />
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">HR ID</span>
-                  <input className="p-2 border rounded" value={meta.hrId} onChange={e=>handleMetaChange('hrId', e.target.value)} />
+                  <input className="p-2 border rounded bg-gray-50" value={meta.hrId} onChange={e=>handleMetaChange('hrId', e.target.value)} readOnly />
+                </label>
+                <label className="flex flex-col text-sm">
+                  <span className="mb-1">Area Manager Name</span>
+                  <select 
+                    className="p-2 border rounded"
+                    value={meta.amName || ''}
+                    onChange={e => {
+                      const selected = AREA_MANAGERS.find(am => am.name === e.target.value);
+                      handleMetaChange('amName', selected ? selected.name : '');
+                      handleMetaChange('amId', selected ? selected.id : '');
+                    }}
+                  >
+                    <option value="">Select Area Manager</option>
+                    {AREA_MANAGERS.map(am => (
+                      <option key={am.id} value={am.name}>{am.name}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex flex-col text-sm">
+                  <span className="mb-1">Area Manager ID</span>
+                  <input className="p-2 border rounded bg-gray-50" value={meta.amId || ''} readOnly />
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">Emp. Name</span>
@@ -367,11 +603,24 @@
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">Store Name</span>
-                  <input className="p-2 border rounded" value={meta.storeName} onChange={e=>handleMetaChange('storeName', e.target.value)} />
+                  <select 
+                    className="p-2 border rounded"
+                    value={meta.storeName || ''}
+                    onChange={e => {
+                      const selected = STORES.find(store => store.name === e.target.value);
+                      handleMetaChange('storeName', selected ? selected.name : '');
+                      handleMetaChange('storeId', selected ? selected.id : '');
+                    }}
+                  >
+                    <option value="">Select Store</option>
+                    {STORES.map(store => (
+                      <option key={store.id} value={store.name}>{store.name}</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">Store ID</span>
-                  <input className="p-2 border rounded" value={meta.storeId} onChange={e=>handleMetaChange('storeId', e.target.value)} />
+                  <input className="p-2 border rounded bg-gray-50" value={meta.storeId} readOnly />
                 </label>
               </div>
             </div>
@@ -380,39 +629,72 @@
               <div key={q.id} className="card">
                 <div className="qtitle mb-2">{q.title}</div>
                 {q.type === 'radio' && (
-                  <div className="flex flex-col gap-2">
-                    {q.choices.map((c,idx)=> (
-                      <label key={idx} className="inline-flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          name={q.id}
-                          value={c.label}
-                          checked={resp[q.id] === c.label}
-                          onChange={e=>handleChange(q.id, e.target.value)}
-                        />
-                        <span>{c.label}</span>
-                      </label>
-                    ))}
-                  </div>
+                  <>
+                    <div className="flex flex-col gap-2">
+                      {q.choices.map((c,idx)=> (
+                        <label key={idx} className="inline-flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            name={q.id}
+                            value={c.label}
+                            checked={resp[q.id] === c.label}
+                            onChange={e=>handleChange(q.id, e.target.value)}
+                          />
+                          <span>{c.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="mt-2">
+                      <textarea 
+                        className="w-full p-2 border rounded text-sm" 
+                        placeholder="Add remarks for this question (optional)"
+                        rows="2"
+                        value={resp[q.id + '_remarks'] || ''}
+                        onChange={e=>handleChange(q.id + '_remarks', e.target.value)}
+                      />
+                    </div>
+                  </>
                 )}
                 {q.type === 'scale' && (
-                  <div className="flex gap-4">
-                    {q.choices.map((c,idx)=> (
-                      <label key={idx} className="flex flex-col items-center">
-                        <input
-                          type="radio"
-                          name={q.id}
-                          value={c.label}
-                          checked={resp[q.id] === c.label}
-                          onChange={e=>handleChange(q.id, e.target.value)}
-                        />
-                        <span className="text-sm text-gray-600">{c.label}</span>
-                      </label>
-                    ))}
-                  </div>
+                  <>
+                    <div className="flex gap-4">
+                      {q.choices.map((c,idx)=> (
+                        <label key={idx} className="flex flex-col items-center">
+                          <input
+                            type="radio"
+                            name={q.id}
+                            value={c.label}
+                            checked={resp[q.id] === c.label}
+                            onChange={e=>handleChange(q.id, e.target.value)}
+                          />
+                          <span className="text-sm text-gray-600">{c.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="mt-2">
+                      <textarea 
+                        className="w-full p-2 border rounded text-sm" 
+                        placeholder="Add remarks for this question (optional)"
+                        rows="2"
+                        value={resp[q.id + '_remarks'] || ''}
+                        onChange={e=>handleChange(q.id + '_remarks', e.target.value)}
+                      />
+                    </div>
+                  </>
                 )}
                 {q.type === 'input' && (
-                  <input className="w-full mt-2 p-2 border rounded" type="text" value={resp[q.id]||''} onChange={e=>handleChange(q.id,e.target.value)} />
+                  <>
+                    <input className="w-full mt-2 p-2 border rounded" type="text" value={resp[q.id]||''} onChange={e=>handleChange(q.id,e.target.value)} />
+                    <div className="mt-2">
+                      <textarea 
+                        className="w-full p-2 border rounded text-sm" 
+                        placeholder="Add remarks for this question (optional)"
+                        rows="2"
+                        value={resp[q.id + '_remarks'] || ''}
+                        onChange={e=>handleChange(q.id + '_remarks', e.target.value)}
+                      />
+                    </div>
+                  </>
                 )}
                 {q.type === 'textarea' && (
                   <textarea className="w-full mt-2 p-2 border rounded" rows="4" value={resp[q.id]||''} onChange={e=>handleChange(q.id,e.target.value)} />
