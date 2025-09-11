@@ -76,15 +76,45 @@
     const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycby2Q2O8ErAzt7W8WY41O0Kz-LH78FxSSzDAJ8h9w397q-Yb7r6oFCxgb_-RycBc_qnCeA/exec';
 
     function HRConnectForm(){
+      // Get HR details from URL parameters
+      const getUrlParams = () => {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          hrName: params.get('hrName') || '',
+          hrId: params.get('hrId') || ''
+        };
+      };
+
       // Restore saved responses and meta from localStorage so form survives refresh
       const [resp, setResp] = useState(() => {
         try { return JSON.parse(localStorage.getItem('hr_resp') || '{}'); } catch (e) { return {}; }
       });
       const [submitted, setSubmitted] = useState(false);
 
-      // Metadata fields for header
+      // Metadata fields for header - initialize with URL params
       const [meta, setMeta] = useState(() => {
-        try { return Object.assign({hrName:'',hrId:'',empName:'',empId:'',storeName:'',storeId:''}, JSON.parse(localStorage.getItem('hr_meta') || '{}')); } catch (e) { return {hrName:'',hrId:'',empName:'',empId:'',storeName:'',storeId:''}; }
+        const urlParams = getUrlParams();
+        try { 
+          const stored = JSON.parse(localStorage.getItem('hr_meta') || '{}');
+          return Object.assign(
+            {hrName:'',hrId:'',empName:'',empId:'',storeName:'',storeId:''}, 
+            stored,
+            // URL params override stored values
+            {
+              hrName: urlParams.hrName || stored.hrName || '',
+              hrId: urlParams.hrId || stored.hrId || ''
+            }
+          ); 
+        } catch (e) { 
+          return {
+            hrName: urlParams.hrName || '',
+            hrId: urlParams.hrId || '',
+            empName:'',
+            empId:'',
+            storeName:'',
+            storeId:''
+          }; 
+        }
       });
       const handleMetaChange = (key, value) => {
         setMeta(prev => {
