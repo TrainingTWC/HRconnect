@@ -80,8 +80,8 @@
       const getUrlParams = () => {
         const params = new URLSearchParams(window.location.search);
         return {
-          hrName: params.get('hrName') || '',
-          hrId: params.get('hrId') || ''
+          hrName: params.get('name') || '',  // Changed from hrName to name
+          hrId: params.get('id') || ''       // Changed from hrId to id
         };
       };
 
@@ -159,7 +159,7 @@
         return { total, max, percent: max? Math.round((total/max)*100):0 };
       };
 
-      const onSubmit = (e) =>{
+      const onSubmit = async (e) =>{
         e.preventDefault();
         const ok = validate();
         if(!ok.ok){
@@ -168,6 +168,18 @@
           alert('Please answer all required questions.');
           return;
         }
+
+        // Vibrate if supported
+        if ('vibrate' in navigator) {
+          navigator.vibrate(200); // vibrate for 200ms
+        }
+
+        // Generate and download PDF first
+        await generatePdf();
+        
+        // Show success message
+        alert('Survey submitted and report downloaded successfully!');
+        
         setSubmitted(true);
 
         // Log form data to remote endpoint
@@ -429,17 +441,6 @@
                   ))}
                 </ul>
               </div>
-            </div>
-          )}
-
-          {submitted && (
-            <div className="mt-4">
-              <button
-                onClick={generatePdf}
-                className="px-4 py-2 bg-green-600 text-white rounded"
-              >
-                Download PDF Report
-              </button>
             </div>
           )}
         </div>
