@@ -15,11 +15,9 @@
     body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:#f3f4f6 }
     .card { background: white; border-radius: 12px; padding: 14px; box-shadow: 0 6px 20px rgba(15,23,42,0.06) }
     .qtitle { font-weight: 700; color:#0f172a }
-    /* Page header: tighter spacing and consistent sizing */
     .page-header { display: flex; align-items: center; gap: 2px; padding-bottom: 6px; }
     .page-header .left { font-weight: 900; font-size: 42px; line-height: 1; color: #071428; text-transform: uppercase; letter-spacing: 0.5px; }
     .page-header .right { font-weight: 900; font-size: 42px; line-height: 1; color: #071428; }
-    /* Responsive adjustments */
     @media (max-width: 639px) {
       .page-header { gap: 2px; }
       .page-header .left { font-size: 24px; }
@@ -36,8 +34,7 @@
 
   <script type="text/babel">
     const { useState } = React;
-    
-    // Area Manager data
+
     const AREA_MANAGERS = [
       { name: 'Abhishek Vilas Satardekar', id: 'h3386' },
       { name: 'Ajay  Hatimuria', id: 'h546' },
@@ -57,7 +54,6 @@
       { name: 'Nandish', id: 'H833' }
     ].sort((a, b) => a.name.localeCompare(b.name));
 
-    // Store data
     const STORES = [
       { name: 'Koramangala 1', id: 'S001' },
       { name: 'CMH Indiranagar', id: 'S002' },
@@ -266,50 +262,44 @@
       ] }
     ];
 
-    // Remote logging endpoint (Apps Script URL provided by user)
     const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwDQs8yJ_e23aHk3Ep_hmaswO3bKDxZKIs6J3gqkOjkxhQD2Ux4JicBlFoCf5UUrCX73w/exec';
 
     function HRConnectForm(){
-      // Get HR details from URL parameters
+
       const getUrlParams = () => {
         const params = new URLSearchParams(window.location.search);
         return {
-          hrName: params.get('name') || '',  // Changed from hrName to name
-          hrId: params.get('id') || ''       // Changed from hrId to id
+          hrName: params.get('name') || '',
+          hrId: params.get('id') || ''
         };
       };
 
-      // Restore saved responses and meta from localStorage so form survives refresh
       const [resp, setResp] = useState(() => {
         try { return JSON.parse(localStorage.getItem('hr_resp') || '{}'); } catch (e) { return {}; }
       });
       const [submitted, setSubmitted] = useState(false);
 
-      // Metadata fields for header - initialize with URL params
       const [meta, setMeta] = useState(() => {
         const urlParams = getUrlParams();
-        try { 
+        try {
           const stored = JSON.parse(localStorage.getItem('hr_meta') || '{}');
-          return Object.assign(
-            {hrName:'',hrId:'',amName:'',amId:'',empName:'',empId:'',storeName:'',storeId:''}, 
-            stored,
-            // URL params override stored values
-            {
-              hrName: urlParams.hrName || stored.hrName || '',
-              hrId: urlParams.hrId || stored.hrId || ''
-            }
-          ); 
-        } catch (e) { 
+            return Object.assign(
+              {hrName:'',hrId:'',amName:'',amId:'',empName:'',empId:'',storeName:'',storeId:''},
+              stored,
+              {
+                hrName: urlParams.hrName || stored.hrName || '',
+                hrId: urlParams.hrId || stored.hrId || ''
+              }
+            );
+        } catch(e){
           return {
             hrName: urlParams.hrName || '',
             hrId: urlParams.hrId || '',
-            empName:'',
-            empId:'',
-            storeName:'',
-            storeId:''
-          }; 
+            amName:'',amId:'',empName:'',empId:'',storeName:'',storeId:''
+          };
         }
       });
+
       const handleMetaChange = (key, value) => {
         setMeta(prev => {
           const next = {...prev, [key]: value};
@@ -326,7 +316,6 @@
         });
       };
 
-      // Ensure any external changes also persist (edge case)
       React.useEffect(()=>{
         try{ localStorage.setItem('hr_resp', JSON.stringify(resp)); }catch(e){}
       },[resp]);
@@ -335,7 +324,6 @@
       },[meta]);
 
       const validate = () => {
-        // require answer for radio/scale questions
         for(const q of QUESTIONS){
           if((q.type === 'radio' || q.type === 'scale') && (resp[q.id] == null || resp[q.id] === '')) return {ok:false, missing:q.id};
         }
@@ -347,10 +335,30 @@
         for(const q of QUESTIONS){
           if(q.choices){
             const choice = q.choices.find(c=>c.label === resp[q.id]);
-            if(choice){ total += choice.score; max += Math.max(...q.choices.map(c=>c.score)); }
+            if(choice){
+              total += choice.score;
+              max += Math.max(...q.choices.map(c=>c.score));
+            }
           }
         }
         return { total, max, percent: max? Math.round((total/max)*100):0 };
+      };
+
+      // NEW: Reset that preserves HR Name & ID
+      const handleReset = () => {
+        const preserved = { hrName: meta.hrName, hrId: meta.hrId };
+        // Clear only responses
+        localStorage.removeItem('hr_resp');
+        // Rebuild meta with preserved fields
+        const newMeta = {
+          ...preserved,
+          amName:'', amId:'', empName:'', empId:'', storeName:'', storeId:''
+        };
+        // Store new meta
+        try { localStorage.setItem('hr_meta', JSON.stringify(newMeta)); } catch(e){}
+        setResp({});
+        setMeta(newMeta);
+        setSubmitted(false);
       };
 
       const onSubmit = async (e) =>{
@@ -362,24 +370,13 @@
           alert('Please answer all required questions.');
           return;
         }
-
-        // Vibrate if supported
-        if ('vibrate' in navigator) {
-          navigator.vibrate(200); // vibrate for 200ms
-        }
-
-        // Generate and download PDF first
+        if ('vibrate' in navigator) navigator.vibrate(200);
         await generatePdf();
-        
-        // Show success message
         alert('Survey submitted and report downloaded successfully!');
-        
         setSubmitted(true);
 
-        // Log form data to remote endpoint
         const logData = async () => {
           const score = computeScore();
-          // Build flat params expected by the Apps Script doPost
           const params = {
             submissionTime: new Date().toLocaleString('en-GB',{hour12:false}),
             hrName: meta.hrName || '',
@@ -418,7 +415,6 @@
             maxScore: score.max || '',
             percent: score.percent || ''
           };
-          // form-encode
           const body = Object.keys(params).map(k=> encodeURIComponent(k)+'='+encodeURIComponent(params[k])).join('&');
           try {
             await fetch(LOG_ENDPOINT, {
@@ -426,7 +422,6 @@
               headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
               body
             });
-            console.log('Data logged successfully:', params);
           } catch (error) {
             console.error('Error logging data:', error);
           }
@@ -436,22 +431,19 @@
 
       const score = computeScore();
 
-      // PDF generation
       const generatePdf = async () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ unit: 'mm', format: 'a4' });
         let y = 12;
 
-  // Header (single-line title)
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor('#000000');
-  doc.text('THIRD WAVE COFFEE | HR CONNECT', 14, y);
-  doc.setFontSize(11);
-  doc.setFont('helvetica','normal');
-  y += 7;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor('#000000');
+        doc.text('THIRD WAVE COFFEE | HR CONNECT', 14, y);
+        doc.setFontSize(11);
+        doc.setFont('helvetica','normal');
+        y += 7;
 
-        // Metadata block (black text)
         doc.setFontSize(10);
         doc.setFont('helvetica','bold');
         doc.text('Survey Details', 14, y);
@@ -470,65 +462,45 @@
         doc.text(`Store ID: ${meta.storeId || '-'}`, 110, y);
         y += 10;
 
-        // Score summary (bold, black)
         doc.setFont('helvetica','bold');
         doc.setFontSize(12);
         doc.text(`Score: ${score.total} / ${score.max}   (${score.percent}%)`, 14, y);
         y += 6;
 
-        // Infographic: horizontal gradient bar showing percent (red -> yellow -> green)
         const barX = 14, barY = y, barW = 180, barH = 9;
-        // Draw a subtle border
         doc.setDrawColor(0);
         doc.setLineWidth(0.3);
         doc.rect(barX - 0.5, barY - 0.5, barW + 1, barH + 1);
 
-        // Helper: linear interpolate color channels
         function lerp(a, b, t){ return Math.round(a + (b - a) * t); }
         function colorAt(t){
-          // t in [0,1]
           if (t <= 0.5) {
-            // red (255,0,0) -> yellow (255,204,0)
             const tt = t / 0.5;
-            const r = lerp(255, 255, tt);
-            const g = lerp(0, 204, tt);
-            const b = lerp(0, 0, tt);
-            return [r,g,b];
+            return [ lerp(255,255,tt), lerp(0,204,tt), 0 ];
           } else {
-            // yellow (255,204,0) -> green (34,177,76)
             const tt = (t - 0.5) / 0.5;
-            const r = lerp(255, 34, tt);
-            const g = lerp(204, 177, tt);
-            const b = lerp(0, 76, tt);
-            return [r,g,b];
+            return [ lerp(255,34,tt), lerp(204,177,tt), lerp(0,76,tt) ];
           }
         }
 
-        // Draw gradient by thin vertical slices
-        const sliceW = 1; // 1 mm slices
+        const sliceW = 1;
         for(let i = 0; i < barW; i += sliceW){
           const t = i / (barW - 1);
           const [r,g,b] = colorAt(t);
-          doc.setFillColor(r, g, b);
-          doc.rect(barX + i, barY, sliceW, barH, 'F');
+            doc.setFillColor(r,g,b);
+            doc.rect(barX + i, barY, sliceW, barH, 'F');
         }
-
-        // Mask unfilled portion with white rectangle so only filled portion shows the gradient
         const fillW = Math.max(0, Math.min(barW, Math.round((score.percent/100) * barW)));
         if (fillW < barW){
           doc.setFillColor(255,255,255);
           doc.rect(barX + fillW, barY, barW - fillW, barH, 'F');
         }
-
-        // Percent label (black)
         doc.setFont('helvetica','bold');
         doc.setFontSize(10);
         doc.setTextColor('#000000');
         doc.text(`${score.percent}%`, barX + barW + 6, barY + barH - 1);
-
         y += barH + 12;
 
-        // Three-column Q/A/Remarks table using autoTable with black text
         const rows = QUESTIONS.map(q => [q.title, String(resp[q.id] || '-'), String(resp[q.id + '_remarks'] || '-')]);
         doc.autoTable({
           startY: y,
@@ -536,15 +508,14 @@
           body: rows,
           styles: { fontSize: 10, textColor: '#000000' },
           headStyles: { fillColor: [255,255,255], textColor: '#000000', fontStyle: 'bold' },
-          columnStyles: { 
-            0: { cellWidth: 80 }, 
+          columnStyles: {
+            0: { cellWidth: 80 },
             1: { cellWidth: 40 },
             2: { cellWidth: 60 }
           },
           margin: { left: 14, right: 14 }
         });
 
-        // Footer / timestamp
         const finalY = doc.lastAutoTable ? (doc.lastAutoTable.finalY + 8) : (y + 8);
         doc.setFontSize(9);
         doc.setFont('helvetica','normal');
@@ -560,21 +531,20 @@
             <span className="right">| HR CONNECT</span>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
-            {/* Header / metadata card */}
             <div className="card">
               <div className="qtitle mb-3">Survey Details</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">HR Name</span>
-                  <input className="p-2 border rounded bg-gray-50" value={meta.hrName} onChange={e=>handleMetaChange('hrName', e.target.value)} readOnly />
+                  <input className="p-2 border rounded bg-gray-50" value={meta.hrName} readOnly />
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">HR ID</span>
-                  <input className="p-2 border rounded bg-gray-50" value={meta.hrId} onChange={e=>handleMetaChange('hrId', e.target.value)} readOnly />
+                  <input className="p-2 border rounded bg-gray-50" value={meta.hrId} readOnly />
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">Area Manager Name</span>
-                  <select 
+                  <select
                     className="p-2 border rounded"
                     value={meta.amName || ''}
                     onChange={e => {
@@ -603,7 +573,7 @@
                 </label>
                 <label className="flex flex-col text-sm">
                   <span className="mb-1">Store Name</span>
-                  <select 
+                  <select
                     className="p-2 border rounded"
                     value={meta.storeName || ''}
                     onChange={e => {
@@ -645,8 +615,8 @@
                       ))}
                     </div>
                     <div className="mt-2">
-                      <textarea 
-                        className="w-full p-2 border rounded text-sm" 
+                      <textarea
+                        className="w-full p-2 border rounded text-sm"
                         placeholder="Add remarks for this question (optional)"
                         rows="2"
                         value={resp[q.id + '_remarks'] || ''}
@@ -672,8 +642,8 @@
                       ))}
                     </div>
                     <div className="mt-2">
-                      <textarea 
-                        className="w-full p-2 border rounded text-sm" 
+                      <textarea
+                        className="w-full p-2 border rounded text-sm"
                         placeholder="Add remarks for this question (optional)"
                         rows="2"
                         value={resp[q.id + '_remarks'] || ''}
@@ -684,10 +654,15 @@
                 )}
                 {q.type === 'input' && (
                   <>
-                    <input className="w-full mt-2 p-2 border rounded" type="text" value={resp[q.id]||''} onChange={e=>handleChange(q.id,e.target.value)} />
+                    <input
+                      className="w-full mt-2 p-2 border rounded"
+                      type="text"
+                      value={resp[q.id]||''}
+                      onChange={e=>handleChange(q.id,e.target.value)}
+                    />
                     <div className="mt-2">
-                      <textarea 
-                        className="w-full p-2 border rounded text-sm" 
+                      <textarea
+                        className="w-full p-2 border rounded text-sm"
                         placeholder="Add remarks for this question (optional)"
                         rows="2"
                         value={resp[q.id + '_remarks'] || ''}
@@ -697,16 +672,32 @@
                   </>
                 )}
                 {q.type === 'textarea' && (
-                  <textarea className="w-full mt-2 p-2 border rounded" rows="4" value={resp[q.id]||''} onChange={e=>handleChange(q.id,e.target.value)} />
+                  <textarea
+                    className="w-full mt-2 p-2 border rounded"
+                    rows="4"
+                    value={resp[q.id]||''}
+                    onChange={e=>handleChange(q.id,e.target.value)}
+                  />
                 )}
               </div>
             ))}
 
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">All radio/scale questions are required.</div>
+              <div className="text-sm text-gray-600">
+                All radio/scale questions are required.
+              </div>
               <div className="flex gap-2">
-                <button type="button" className="px-4 py-2 border rounded" onClick={()=>{ localStorage.removeItem('hr_resp'); localStorage.removeItem('hr_meta'); setResp({}); setMeta({ hrName:'', hrId:'', empName:'', empId:'', storeName:'', storeId:'' }); setSubmitted(false); }}>Reset</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Submit</button>
+                <button
+                  type="button"
+                  className="px-4 py-2 border rounded"
+                  onClick={handleReset}
+                  title="Clear answers but keep HR Name & ID"
+                >
+                  Reset (Keep HR)
+                </button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
+                  Submit
+                </button>
               </div>
             </div>
           </form>
