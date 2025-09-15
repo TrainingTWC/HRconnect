@@ -33,7 +33,7 @@
   <div id="root" class="max-w-3xl mx-auto"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect, useMemo } = React;
 
     const AREA_MANAGERS = [
       { name: 'Abhishek Vilas Satardekar', id: 'h3386' },
@@ -270,39 +270,51 @@
         const params = new URLSearchParams(window.location.search);
         return {
           hrName: params.get('name') || '',
-          hrId: params.get('id') || ''
+            hrId: params.get('id') || ''
         };
       };
+
+      // Always derive HR Name / ID from URL on each mount (and keep constant during session)
+      const { hrName: urlHrName, hrId: urlHrId } = useMemo(() => getUrlParams(), [window.location.search]);
 
       const [resp, setResp] = useState(() => {
         try { return JSON.parse(localStorage.getItem('hr_resp') || '{}'); } catch (e) { return {}; }
       });
       const [submitted, setSubmitted] = useState(false);
 
+      // Meta now excludes persistence override for hrName/hrId; those always come from URL.
       const [meta, setMeta] = useState(() => {
-        const urlParams = getUrlParams();
-        try {
-          const stored = JSON.parse(localStorage.getItem('hr_meta') || '{}');
-            return Object.assign(
-              {hrName:'',hrId:'',amName:'',amId:'',empName:'',empId:'',storeName:'',storeId:''},
-              stored,
-              {
-                hrName: urlParams.hrName || stored.hrName || '',
-                hrId: urlParams.hrId || stored.hrId || ''
-              }
-            );
-        } catch(e){
-          return {
-            hrName: urlParams.hrName || '',
-            hrId: urlParams.hrId || '',
-            amName:'',amId:'',empName:'',empId:'',storeName:'',storeId:''
-          };
-        }
+        let stored = {};
+        try { stored = JSON.parse(localStorage.getItem('hr_meta') || '{}'); } catch(e){}
+        return {
+          hrName: urlHrName,
+          hrId: urlHrId,
+          amName: stored.amName || '',
+          amId: stored.amId || '',
+          empName: stored.empName || '',
+          empId: stored.empId || '',
+          storeName: stored.storeName || '',
+          storeId: stored.storeId || ''
+        };
       });
 
-      const handleMetaChange = (key, value) => {
+      // Enforce URL dominance in case localStorage had old values or if URL changes before remount.
+      useEffect(() => {
         setMeta(prev => {
-          const next = {...prev, [key]: value};
+          if (prev.hrName !== urlHrName || prev.hrId !== urlHrId) {
+            const next = { ...prev, hrName: urlHrName, hrId: urlHrId };
+            try { localStorage.setItem('hr_meta', JSON.stringify(next)); } catch(e){}
+            return next;
+          }
+          return prev;
+        });
+      }, [urlHrName, urlHrId]);
+
+      const handleMetaChange = (key, value) => {
+        // Prevent manual changes to hrName/hrId (they are readOnly anyway)
+        if (key === 'hrName' || key === 'hrId') return;
+        setMeta(prev => {
+          const next = { ...prev, [key]: value };
           try { localStorage.setItem('hr_meta', JSON.stringify(next)); } catch(e){}
           return next;
         });
@@ -316,10 +328,12 @@
         });
       };
 
-      React.useEffect(()=>{
+      useEffect(()=>{
         try{ localStorage.setItem('hr_resp', JSON.stringify(resp)); }catch(e){}
       },[resp]);
-      React.useEffect(()=>{
+
+      useEffect(()=>{
+        // Store meta including hr fields (harmless, they are overridden at init)
         try{ localStorage.setItem('hr_meta', JSON.stringify(meta)); }catch(e){}
       },[meta]);
 
@@ -344,17 +358,15 @@
         return { total, max, percent: max? Math.round((total/max)*100):0 };
       };
 
-      // NEW: Reset that preserves HR Name & ID
+      // Reset: re-read URL to enforce HR fields from URL again.
       const handleReset = () => {
-        const preserved = { hrName: meta.hrName, hrId: meta.hrId };
-        // Clear only responses
+        const { hrName, hrId } = getUrlParams();
         localStorage.removeItem('hr_resp');
-        // Rebuild meta with preserved fields
         const newMeta = {
-          ...preserved,
+          hrName,
+          hrId,
           amName:'', amId:'', empName:'', empId:'', storeName:'', storeId:''
         };
-        // Store new meta
         try { localStorage.setItem('hr_meta', JSON.stringify(newMeta)); } catch(e){}
         setResp({});
         setMeta(newMeta);
@@ -487,8 +499,8 @@
         for(let i = 0; i < barW; i += sliceW){
           const t = i / (barW - 1);
           const [r,g,b] = colorAt(t);
-            doc.setFillColor(r,g,b);
-            doc.rect(barX + i, barY, sliceW, barH, 'F');
+          doc.setFillColor(r,g,b);
+          doc.rect(barX + i, barY, sliceW, barH, 'F');
         }
         const fillW = Math.max(0, Math.min(barW, Math.round((score.percent/100) * barW)));
         if (fillW < barW){
@@ -691,7 +703,7 @@
                   type="button"
                   className="px-4 py-2 border rounded"
                   onClick={handleReset}
-                  title="Clear answers but keep HR Name & ID"
+                  title="Clear answers but keep HR Name & ID from URL"
                 >
                   Reset (Keep HR)
                 </button>
